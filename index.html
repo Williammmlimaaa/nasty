@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scriptorium - Guardiãs Estelares</title>
+  <style>
+    :root {
+      --bg-dark: #120e18;
+      --card-bg: rgba(26, 20, 36, 0.85);
+      --gold-primary: #d4af37;
+      --gold-hover: #f3e5ab;
+      --text-light: #f0e6d2;
+      --text-muted: #a392b9;
+      --border-gold: #8a7322;
+      --ruby: #e63946;
+      --sapphire: #3a86ff;
+      --amber: #ffbe0b;
+      --amethyst: #8338ec;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Georgia', 'Times New Roman', serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 10%, rgba(131, 56, 236, 0.15), transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.1), transparent 40%);
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem 1rem;
+      border-bottom: 2px solid var(--border-gold);
+      background: linear-gradient(180deg, rgba(18,14,24,0.95) 0%, rgba(26,20,36,0.8) 100%);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 1rem;
+      background: rgba(18, 14, 24, 0.9);
+      border-bottom: 1px solid var(--border-gold);
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--gold-primary);
+      padding: 0.6rem 1.2rem;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--gold-primary);
+      color: var(--bg-dark);
+      box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* GALERIA DE PERSONAGENS */
+    .grid-characters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .char-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-gold);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      text-align: center;
+    }
+
+    .char-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(212, 175, 55, 0.25);
+      border-color: var(--gold-primary);
+    }
+
+    .char-img-container {
+      width: 100%;
+      height: 320px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border-gold);
+      background: #000;
+    }
+
+    .char-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      transition: transform 0.5s ease;
+    }
+
+    .char-card:hover .char-img-container img {
+      transform: scale(1.05);
+    }
+
+    .char-info {
+      padding: 1rem;
+    }
+
+    .char-info h3 {
+      color: var(--gold-primary);
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .char-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* MODAL DE DETALHES */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-dark);
+      border: 2px solid var(--gold-primary);
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.3);
+    }
+
+    @media (min-width: 600px) {
+      .modal-body {
+        display: flex;
+        gap: 1.5rem;
+      }
+      .modal-img {
+        width: 40%;
+        max-height: 400px;
+      }
+      .modal-details {
+        width: 60%;
+      }
+    }
+
+    .modal-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      color: var(--gold-primary);
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--gold-primary);
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border-gold);
+    }
+
+    .modal-details p {
+      margin-bottom: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .modal-details strong {
+      color: var(--gold-hover);
+    }
+
+    /* SEÇÕES DE CONTEÚDO E TEXTO (TEMPORADAS/HABILIDADES) */
+    .content-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-gold);
+      padding: 2rem;
+      border-radius: 8px;
+      line-height: 1.8;
+    }
+
+    .content-box h2 {
+      color: var(--gold-primary);
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-gold);
+      padding-bottom: 0.5rem;
+    }
+
+    .chapter {
+      margin-bottom: 2rem;
+    }
+
+    .chapter h3 {
+      color: var(--gold-hover);
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-gold);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      background: rgba(18, 14, 24, 0.95);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Scriptorium</h1>
+    <p>Crônicas das Guardiãs Estelares</p>
+  </header>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('apresentacao')">Apresentação</button>
+    <button class="nav-btn" onclick="switchTab('habilidades')">Habilidades</button>
+    <button class="nav-btn" onclick="switchTab('temp1')">Temporada 1</button>
+    <button class="nav-btn" onclick="switchTab('temp2')">Temporada 2</button>
+  </nav>
+
+  <main>
+    <!-- ABA APRESENTAÇÃO -->
+    <section id="apresentacao" class="tab-content active">
+      <div class="grid-characters" id="char-grid"></div>
+    </section>
+
+    <!-- ABA HABILIDADES -->
+    <section id="habilidades" class="tab-content">
+      <div class="content-box">
+        <h2>Grimório de Habilidades</h2>
+        <p><em>Escreva aqui os detalhes das habilidades, magias e poderes dos personagens...</em></p>
+        <br>
+        <div class="chapter">
+          <h3>Habilidades Especiais</h3>
+          <p>Escreva o texto das habilidades aqui...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA TEMPORADA 1 -->
+    <section id="temp1" class="tab-content">
+      <div class="content-box">
+        <h2>Temporada 1: O Despertar</h2>
+        <div class="chapter">
+          <h3>Capítulo 1</h3>
+          <p><em>Escreva a história do primeiro capítulo aqui...</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA TEMPORADA 2 -->
+    <section id="temp2" class="tab-content">
+      <div class="content-box">
+        <h2>Temporada 2: Sombras do Firmamento</h2>
+        <div class="chapter">
+          <h3>Capítulo 1</h3>
+          <p><em>Escreva a história do capítulo da segunda temporada aqui...</em></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL DE DETALHES DO PERSONAGEM -->
+  <div class="modal" id="char-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Nome do Personagem</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-img">
+          <img id="modal-image" src="" alt="Foto do Personagem">
+        </div>
+        <div class="modal-details">
+          <p><strong>Espécie:</strong> <span id="modal-species">-</span></p>
+          <p><strong>Classe:</strong> <span id="modal-class">-</span></p>
+          <p><strong>Origem:</strong> <span id="modal-origin">-</span></p>
+          <p><strong>Descrição / História:</strong></p>
+          <p id="modal-desc">-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; Scriptorium - Guardiãs Estelares. Todos os direitos reservados.</p>
+  </footer>
+
+  <script>
+    // DADOS DOS PERSONAGENS
+    const characters = [
+      {
+        id: "bruna",
+        name: "Bruna",
+        title: "Guardiã Azul",
+        species: "Humana / Guardiã Estelar",
+        class: "Espadachim Astral / Maga das Águas",
+        origin: "Reino Cósmico Superior",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/bruna_crop.png",
+        description: "Empunha uma lâmina encantada e canaliza espíritos marinhos astrais. Determinada e leal à sua ordem."
+      },
+      {
+        id: "nayra",
+        name: "Nayra",
+        title: "Guardiã Vermelha",
+        species: "Humana / Guardiã Estelar",
+        class: "Mestre do Chicote Celestial",
+        origin: "Reino Cósmico Superior",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/nayra_crop.png",
+        description: "Especialista em combate à distância e magias de contenção por cristais carmesim."
+      },
+      {
+        id: "carolina",
+        name: "Carolina",
+        title: "Guardiã Amarela",
+        species: "Humana / Guardiã Estelar",
+        class: "Erudita da Luz / Machado Solar",
+        origin: "Reino Cósmico Superior",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/carolina_crop.png",
+        description: "Utiliza um imponente machado cerimonial e óculos de focalização mágica para decifrar runas ancestrais."
+      },
+      {
+        id: "kaelen",
+        name: "Kaelen",
+        title: "Ceifador do Eclipsado",
+        species: "Entidade do Vazio",
+        class: "Ceifador de Sombras",
+        origin: "Dimensão Invertida",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/kaelen_crop.png",
+        description: "Dominador de cristais negros e correntes dimensionais. Carrega uma gadanha gigante capaz de rasgar a realidade."
+      },
+      {
+        id: "william",
+        name: "William",
+        title: "O Iluminado",
+        species: "Entidade Divina",
+        class: "Cavaleiro do Sol Cósmico",
+        origin: "Núcleo Estelar",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/william_crop.png",
+        description: "Guerreiro que canaliza a energia de sóis incandescentes através de sua espada solar dourada."
+      },
+      {
+        id: "selene",
+        name: "Selene",
+        title: "Mãe da Bruna",
+        species: "Anciã das Marés Estelares",
+        class: "Matriarca Oceânica",
+        origin: "Reino Antigo das Águas",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/mae_bruna_crop.png",
+        description: "Matriarca ancestral guardiã dos mistérios oceânicos e mentora do elemento água."
+      },
+      {
+        id: "aurelia",
+        name: "Aurelia",
+        title: "Mãe da Carolina",
+        species: "Anciã da Sabedoria Solar",
+        class: "Alta Astrofísica Runas",
+        origin: "Cinelândia Sagrada",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/mae_carolina_crop.png",
+        description: "Guardiã do conhecimento runico e detentora das tradições de iluminação e clareza mental."
+      },
+      {
+        id: "ignis",
+        name: "Ignis",
+        title: "Mãe da Nayra",
+        species: "Anciã do Fogo Celestial",
+        class: "Imperatriz das Chamas",
+        origin: "Fortaleza Rubra",
+        image: "https://storage.googleapis.com/static.gemini.google/users/image_crops/mae_nayra_crop.png",
+        description: "Detentora da chama primordial do firmamento, líder dos guerreiros carmesim."
+      }
+    ];
+
+    // RENDERIZAR CARDS
+    function renderCharacters() {
+      const grid = document.getElementById('char-grid');
+      grid.innerHTML = characters.map(c => `
+        <div class="char-card" onclick="openModal('${c.id}')">
+          <div class="char-img-container">
+            <img src="${c.image}" alt="${c.name}">
+          </div>
+          <div class="char-info">
+            <h3>${c.name}</h3>
+            <p>${c.title}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ABRIR E FECHAR MODAL
+    function openModal(id) {
+      const char = characters.find(c => c.id === id);
+      if (!char) return;
+
+      document.getElementById('modal-title').innerText = `${char.name} (${char.title})`;
+      document.getElementById('modal-image').src = char.image;
+      document.getElementById('modal-species').innerText = char.species;
+      document.getElementById('modal-class').innerText = char.class;
+      document.getElementById('modal-origin').innerText = char.origin;
+      document.getElementById('modal-desc').innerText = char.description;
+
+      document.getElementById('char-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('char-modal').classList.remove('active');
+    }
+
+    // NAVEGAÇÃO ENTRE ABAS
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // INICIALIZAÇÃO
+    window.onload = () => {
+      renderCharacters();
+    };
+  </script>
+</body>
+</html>
